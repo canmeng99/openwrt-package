@@ -8,10 +8,16 @@ require("table")
 function gen_template_config()
 	local b
 	local d=""
-	for cnt in io.lines("/tmp/resolv.conf.d/resolv.conf.auto") do
-		b=string.match (cnt,"^[^#]*nameserver%s+([^%s]+)$")
-		if (b~=nil) then
-			d=d.."  - "..b.."\n"
+	local rcauto="/tmp/resolv.conf.auto"
+	if not fs.access(rcauto) then
+		rcauto="/tmp/resolv.conf.d/resolv.conf.auto"
+	end
+	if fs.access(rcauto) then
+		for cnt in io.lines(rcauto) do
+			b=string.match (cnt,"^[^#]*nameserver%s+([^%s]+)$")
+			if (b~=nil) then
+				d=d.."  - "..b.."\n"
+			end
 		end
 	end
 	local f=io.open("/usr/share/AdGuardHome/AdGuardHome_template.yaml", "r+")
@@ -70,7 +76,7 @@ o.template = "AdGuardHome/yamleditor"
 if not fs.access(binpath) then
 	o.description=translate("WARNING!!! no bin found apply config will not be test")
 end
---- log
+--- log 
 if (fs.access("/tmp/AdGuardHometmpconfig.yaml")) then
 local c=fs.readfile("/tmp/AdGuardHometest.log")
 if (c~="") then
